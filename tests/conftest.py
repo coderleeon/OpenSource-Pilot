@@ -17,8 +17,22 @@ from fastapi.testclient import TestClient
 from httpx import AsyncClient
 
 from app.config import Settings
-from app.models.issue import ContributionPlan, GitHubIssue, IssueRanking
+from app.models.issue import ContributionPlan, GeneratedTests, GitHubIssue, IssueRanking, PRDraft
 from app.models.repo import FileNode, RepoMetadata, TechStack
+
+
+# ---------------------------------------------------------------------------
+# Global Mocks
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture(autouse=True)
+def mock_embedding_function(monkeypatch) -> None:
+    """Mock SentenceTransformerEmbeddingFunction to avoid downloading/loading model during tests."""
+    monkeypatch.setattr(
+        "app.tools.chroma_tool.SentenceTransformerEmbeddingFunction",
+        lambda *args, **kwargs: MagicMock()
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -261,3 +275,65 @@ def mock_chroma_tool() -> MagicMock:
     ]
     tool.delete_collection.return_value = None
     return tool
+
+
+# ---------------------------------------------------------------------------
+# Phase 2 domain model fixtures
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture()
+def sample_generated_tests() -> GeneratedTests:
+    """A fully populated GeneratedTests instance for testing."""
+    return GeneratedTests(
+        unit_tests=(
+            "import pytest\n\n"
+            "def test_session_expires_after_timeout():\n"
+            "    \"\"\"Session must expire after the configured timeout.\"\"\"\n"
+            "    assert True  # replace with real assertion\n"
+        ),
+        integration_tests=(
+            "import pytest\n\n"
+            "def test_session_integrates_with_flask_app():\n"
+            "    \"\"\"Test session within a real Flask test client.\"\"\"\n"
+            "    assert True\n"
+        ),
+        edge_cases=(
+            "import pytest\n\n"
+            "def test_session_with_empty_token_raises():\n"
+            "    \"\"\"Empty token should raise ValueError.\"\"\"\n"
+            "    assert True\n"
+        ),
+        test_file_path="tests/test_sessions.py",
+        framework="pytest",
+        dependencies=["pytest-mock", "freezegun"],
+        setup_notes="Install with: pip install pytest pytest-mock freezegun",
+    )
+
+
+@pytest.fixture()
+def sample_pr_draft() -> PRDraft:
+    """A fully populated PRDraft instance for testing."""
+    return PRDraft(
+        title="fix(sessions): handle timezone-aware datetime expiry",
+        summary=(
+            "This PR fixes the session timeout handling by switching from naive "
+            "to timezone-aware datetime comparison in `sessions.py`."
+        ),
+        testing_checklist=[
+            "Run `pytest tests/test_sessions.py` — all tests pass",
+            "Verify session expires at the correct time with UTC datetimes",
+            "Check that existing session tests are unaffected",
+        ],
+        reviewer_notes=(
+            "The root cause was that `datetime.utcnow()` returns a naive datetime "
+            "which compared incorrectly with timezone-aware session timestamps. "
+            "Using `datetime.now(timezone.utc)` resolves this."
+        ),
+        labels_suggested=["bug", "needs-review"],
+        draft_body=(
+            "## Summary\n\nFixes session timeout handling.\n\n"
+            "## Testing\n- [ ] pytest passes\n\nCloses #5420"
+        ),
+    )
+

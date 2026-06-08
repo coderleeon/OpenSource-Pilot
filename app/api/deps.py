@@ -11,6 +11,7 @@ from fastapi import Request
 
 from app.services.issue_service import IssueService
 from app.services.repo_service import RepoService
+from app.services.search_service import SearchService
 
 
 def get_repo_service(request: Request) -> RepoService:
@@ -21,3 +22,8 @@ def get_repo_service(request: Request) -> RepoService:
 def get_issue_service(request: Request) -> IssueService:
     """Retrieve the ``IssueService`` singleton from application state."""
     return request.app.state.issue_service  # type: ignore[no-any-return]
+
+
+def get_search_service(request: Request) -> SearchService:
+    """Retrieve the ``SearchService`` singleton from application state."""
+    return request.app.state.search_service  # type: ignore[no-any-return]

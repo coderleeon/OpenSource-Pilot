@@ -21,7 +21,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.agents.code_analysis_agent import CodeAnalysisAgent
 from app.agents.issue_agent import IssueAgent
 from app.agents.planning_agent import PlanningAgent
+from app.agents.pr_agent import PRAgent
 from app.agents.repo_agent import RepoAgent
+from app.agents.test_generation_agent import TestGenerationAgent
 from app.api.router import router
 from app.config import Settings, get_settings
 from app.core.logging import configure_logging, get_logger
@@ -29,6 +31,7 @@ from app.core.middleware import RequestIDMiddleware, register_exception_handlers
 from app.llm.factory import create_llm_client_from_settings
 from app.services.issue_service import IssueService
 from app.services.repo_service import RepoService
+from app.services.search_service import SearchService
 from app.tools.chroma_tool import ChromaTool
 from app.tools.code_chunker import CodeChunker
 from app.tools.git_tool import GitTool
@@ -87,6 +90,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     )
 
     planning_agent = PlanningAgent(llm_client=llm_client)
+    test_generation_agent = TestGenerationAgent(llm_client=llm_client)
+    pr_agent = PRAgent(llm_client=llm_client)
 
     # ------------------------------------------------------------------ Services
     repo_service = RepoService(
@@ -100,12 +105,20 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         issue_agent=issue_agent,
         code_analysis_agent=code_analysis_agent,
         planning_agent=planning_agent,
+        test_generation_agent=test_generation_agent,
+        pr_agent=pr_agent,
+    )
+
+    search_service = SearchService(
+        repo_agent=repo_agent,
+        code_analysis_agent=code_analysis_agent,
     )
 
     # ------------------------------------------------------------------ State
     app.state.settings = settings
     app.state.repo_service = repo_service
     app.state.issue_service = issue_service
+    app.state.search_service = search_service
 
     logger.info("opensourcepilot_ready")
 

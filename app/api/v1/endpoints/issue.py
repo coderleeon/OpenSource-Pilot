@@ -12,6 +12,10 @@ from app.api.v1.schemas.issue import (
     IssueAnalyzeResponse,
     IssueListRequest,
     IssueListResponse,
+    PRDraftRequest,
+    PRDraftResponseEnvelope,
+    TestGenerationRequest,
+    TestGenerationResponse,
 )
 from app.services.issue_service import IssueService
 
@@ -59,3 +63,47 @@ async def list_issues(
         limit=request.limit,
     )
     return IssueListResponse(**result)
+
+
+@router.post(
+    "/generate-tests",
+    response_model=TestGenerationResponse,
+    summary="Generate a test suite for a GitHub issue contribution",
+    description=(
+        "Analyses the issue and its contribution plan, then generates unit tests, "
+        "integration tests, and edge-case scenarios using the repository's testing "
+        "framework. Returns complete, runnable test source code."
+    ),
+)
+async def generate_tests(
+    request: TestGenerationRequest,
+    service: Annotated[IssueService, Depends(get_issue_service)],
+) -> TestGenerationResponse:
+    """Generate unit, integration, and edge-case tests for a contribution."""
+    result = await service.generate_tests(
+        repo_url=request.repo_url,
+        issue_number=request.issue_number,
+    )
+    return TestGenerationResponse(**result)
+
+
+@router.post(
+    "/generate-pr-draft",
+    response_model=PRDraftResponseEnvelope,
+    summary="Generate a pull request draft for a GitHub issue contribution",
+    description=(
+        "Analyses the issue and its contribution plan, then generates a structured "
+        "PR draft including title (conventional commit format), summary, testing "
+        "checklist, reviewer notes, suggested labels, and a fully assembled PR body."
+    ),
+)
+async def generate_pr_draft(
+    request: PRDraftRequest,
+    service: Annotated[IssueService, Depends(get_issue_service)],
+) -> PRDraftResponseEnvelope:
+    """Generate a PR draft for a contribution."""
+    result = await service.generate_pr_draft(
+        repo_url=request.repo_url,
+        issue_number=request.issue_number,
+    )
+    return PRDraftResponseEnvelope(**result)

@@ -114,6 +114,50 @@ class IssueRanking:
 
 
 @dataclass
+class GeneratedTests:
+    """LLM-generated test suite for a contribution.
+
+    Attributes:
+        unit_tests: Source code for unit tests (isolated, mocked dependencies).
+        integration_tests: Source code for integration tests (component interactions).
+        edge_cases: Source code for edge-case and error-path tests.
+        test_file_path: Suggested file path for the test file (e.g. ``tests/test_sessions.py``).
+        framework: Testing framework used (e.g. ``"pytest"``, ``"unittest"``, ``"jest"``).
+        dependencies: Additional test dependencies to install (e.g. ``["pytest-mock", "httpx"]``).
+        setup_notes: Any setup or configuration notes for running the tests.
+    """
+
+    unit_tests: str
+    integration_tests: str
+    edge_cases: str
+    test_file_path: str
+    framework: str
+    dependencies: list[str] = field(default_factory=list)
+    setup_notes: str = ""
+
+
+@dataclass
+class PRDraft:
+    """LLM-generated pull request draft for a contribution.
+
+    Attributes:
+        title: Concise PR title following conventional commit style.
+        summary: Markdown-formatted PR body summarising the change.
+        testing_checklist: Ordered list of items the reviewer should verify.
+        reviewer_notes: Context for reviewers (design decisions, trade-offs, risks).
+        labels_suggested: Suggested GitHub labels (e.g. ``["bug", "needs-review"]``).
+        draft_body: Full combined PR body (title + summary + checklist + notes).
+    """
+
+    title: str
+    summary: str
+    testing_checklist: list[str]
+    reviewer_notes: str
+    labels_suggested: list[str] = field(default_factory=list)
+    draft_body: str = ""
+
+
+@dataclass
 class ContributionPlan:
     """A structured response plan for a GitHub issue.
 
