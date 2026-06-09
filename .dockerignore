@@ -1,0 +1,14 @@
+.git
+.venv
+__pycache__
+.pytest_cache
+.mypy_cache
+.ruff_cache
+*.pyc
+chroma_db
+chromadb
+cloned_repos
+cache
+.env
+.env.test
+logs

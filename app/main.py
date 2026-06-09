@@ -182,7 +182,45 @@ def create_app() -> FastAPI:
     # Health-check endpoint
     @app.get("/health", tags=["Health"], summary="Health check")
     async def health() -> dict:  # type: ignore[type-arg]
-        return {"status": "ok", "service": "opensourcepilot", "version": "0.1.0"}
+        from fastapi import HTTPException
+        import os
+
+        settings = get_settings()
+
+        # 1. Validate required env variables (API key for active provider)
+        if not settings.effective_api_key:
+            raise HTTPException(
+                status_code=503,
+                detail="Health check failed: LLM provider API key is missing."
+            )
+
+        # 2. Validate ChromaDB persist path write permissions
+        try:
+            os.makedirs(settings.chroma_persist_dir, exist_ok=True)
+            test_file = os.path.join(settings.chroma_persist_dir, ".health_check")
+            with open(test_file, "w") as f:
+                f.write("write_test")
+            os.remove(test_file)
+        except Exception as exc:
+            raise HTTPException(
+                status_code=503,
+                detail=f"Health check failed: ChromaDB directory is not writeable. Details: {exc}"
+            )
+
+        # 3. Validate Clone base directory write permissions
+        try:
+            os.makedirs(settings.clone_base_dir, exist_ok=True)
+            test_file = os.path.join(settings.clone_base_dir, ".health_check")
+            with open(test_file, "w") as f:
+                f.write("write_test")
+            os.remove(test_file)
+        except Exception as exc:
+            raise HTTPException(
+                status_code=503,
+                detail=f"Health check failed: Cloned repos directory is not writeable. Details: {exc}"
+            )
+
+        return {"status": "healthy"}
 
     return app
 

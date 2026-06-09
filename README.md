@@ -2,7 +2,14 @@
 
 > AI-powered open-source contribution assistant.
 
-Given a GitHub repository URL and an issue number, OpenSourcePilot clones the repository, semantically indexes its source code, retrieves the issue, and generates a detailed contribution plan — all through a clean FastAPI backend.
+Given a GitHub repository URL and an issue number, OpenSourcePilot clones the repository, semantically indexes its source code, retrieves the issue, and generates a detailed contribution plan, test suites, and pull request drafts — all through a clean FastAPI backend.
+
+---
+
+## Live Demo & Docs
+
+- **Live Demo:** `https://your-app.up.railway.app`
+- **Interactive Swagger Docs:** `https://your-app.up.railway.app/docs`
 
 ---
 
@@ -11,7 +18,7 @@ Given a GitHub repository URL and an issue number, OpenSourcePilot clones the re
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/your-org/opensourcepilot
+git clone https://github.com/coderleeon/OpenSourcePilot
 cd opensourcepilot
 pip install -r requirements.txt
 ```
@@ -39,33 +46,21 @@ Open [http://localhost:8000/docs](http://localhost:8000/docs) for the interactiv
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET`  | `/health` | Health check |
+| `GET`  | `/health` | Health check (readiness checking) |
 | `POST` | `/api/v1/repo/analyze` | Analyse a GitHub repository |
-| `POST` | `/api/v1/issue/analyze` | Analyse a specific issue |
 | `POST` | `/api/v1/issue/list` | List & rank open issues |
+| `POST` | `/api/v1/issue/analyze` | Analyse a specific issue |
+| `POST` | `/api/v1/issue/generate-tests` | Generate unit, integration, and edge-case tests |
+| `POST` | `/api/v1/issue/generate-pr-draft` | Generate a conventional commit PR title and description |
+| `POST` | `/api/v1/issue/complete-workflow` | Run the complete end-to-end contribution pipeline |
+| `POST` | `/api/v1/search/code` | Perform a local semantic code search |
 
-### Analyse a repository
-
-```bash
-curl -X POST http://localhost:8000/api/v1/repo/analyze \
-  -H "Content-Type: application/json" \
-  -d '{"repo_url": "https://github.com/pallets/flask", "index_code": true}'
-```
-
-### Analyse an issue
+### Execute complete contribution workflow
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/issue/analyze \
+curl -X POST http://localhost:8000/api/v1/issue/complete-workflow \
   -H "Content-Type: application/json" \
   -d '{"repo_url": "https://github.com/pallets/flask", "issue_number": 5420}'
-```
-
-### List ranked issues
-
-```bash
-curl -X POST http://localhost:8000/api/v1/issue/list \
-  -H "Content-Type: application/json" \
-  -d '{"repo_url": "https://github.com/pallets/flask", "limit": 20}'
 ```
 
 ---
@@ -86,7 +81,10 @@ app/
 │   ├── repo_agent.py     # Clone · parse · metadata
 │   ├── issue_agent.py    # Retrieve · rank issues
 │   ├── code_analysis_agent.py  # Chunk · embed · search
-│   └── planning_agent.py       # LLM contribution plans
+│   ├── planning_agent.py       # LLM plans
+│   ├── test_generation_agent.py # LLM framework-aware tests
+│   ├── pr_agent.py             # LLM PR descriptions
+│   └── contribution_workflow_agent.py # Unified agent coordinator
 ├── tools/                # External integrations
 │   ├── git_tool.py       # GitPython wrapper
 │   ├── github_api_tool.py # PyGithub wrapper
@@ -102,6 +100,12 @@ app/
 ├── models/               # Pure domain dataclasses
 └── core/                 # Exceptions · logging · middleware
 ```
+
+---
+
+## Deployment
+
+For production deployment onto the **Railway** serverless cloud platform, see [DEPLOYMENT.md](DEPLOYMENT.md) for step-by-step instructions on project creation, persistent storage volume mounting, and environment variable references.
 
 ---
 
@@ -138,35 +142,10 @@ pytest -v
 
 ---
 
-## Architecture
-
-```
-HTTP Client
-    │
-    ▼
-FastAPI (api/)
-    │
-    ▼
-Services (RepoService / IssueService)
-    │
-    ├── RepoAgent  ──► GitTool (GitPython)
-    │              ──► GitHubAPITool (PyGithub)
-    │              ──► StructureParser
-    │
-    ├── IssueAgent ──► GitHubAPITool
-    │
-    ├── CodeAnalysisAgent ──► CodeChunker
-    │                     ──► ChromaTool (ChromaDB + sentence-transformers)
-    │
-    └── PlanningAgent ──► LLMClient (OpenRouter / OpenAI / Anthropic)
-```
-
----
-
 ## Phase Roadmap
 
 | Phase | Status | Features |
 |-------|--------|----------|
-| 1 — MVP | ✅ Current | Repo analysis · Issue discovery · Code indexing · Contribution plans |
-| 2 — Enhanced | 🔜 | Test generation · PR drafting · Better code understanding |
-| 3 — Advanced | 🔜 | Multi-agent workflows · MCP support · VS Code integration |
+| 1 — MVP | ✅ Complete | Repo analysis · Issue discovery · Code indexing · Contribution plans |
+| 2 — Enhanced | ✅ Complete | Test generation · PR drafting · Semantic code search |
+| 3 — Production | ✅ Complete | Complete end-to-end workflow · Readiness healthchecks · Railway deployment configurations |
