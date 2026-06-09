@@ -6,8 +6,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from app.api.deps import get_issue_service
+from app.api.deps import get_contribution_workflow_service, get_issue_service
 from app.api.v1.schemas.issue import (
+    CompleteWorkflowRequest,
+    CompleteWorkflowResponse,
     IssueAnalyzeRequest,
     IssueAnalyzeResponse,
     IssueListRequest,
@@ -17,6 +19,7 @@ from app.api.v1.schemas.issue import (
     TestGenerationRequest,
     TestGenerationResponse,
 )
+from app.services.contribution_workflow_service import ContributionWorkflowService
 from app.services.issue_service import IssueService
 
 router = APIRouter(prefix="/issue", tags=["Issue Analysis"])
@@ -107,3 +110,25 @@ async def generate_pr_draft(
         issue_number=request.issue_number,
     )
     return PRDraftResponseEnvelope(**result)
+
+
+@router.post(
+    "/complete-workflow",
+    response_model=CompleteWorkflowResponse,
+    summary="Execute the complete end-to-end contributor workflow",
+    description=(
+        "Retrieves repo metadata, fetches the issue, classifies it, performs semantic "
+        "code search, and generates a plan, tests, and PR description. Bypasses indexing, "
+        "search, and test/PR generation if classified as a question or discussion."
+    ),
+)
+async def complete_workflow(
+    request: CompleteWorkflowRequest,
+    service: Annotated[ContributionWorkflowService, Depends(get_contribution_workflow_service)],
+) -> CompleteWorkflowResponse:
+    """Run the complete workflow pipeline."""
+    result = await service.run_complete_workflow(
+        repo_url=request.repo_url,
+        issue_number=request.issue_number,
+    )
+    return CompleteWorkflowResponse(**result)

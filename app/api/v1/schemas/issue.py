@@ -225,3 +225,78 @@ class PRDraftResponseEnvelope(BaseModel):
     issue_title: str
     issue_type: str
     pr_draft: PRDraftResponse
+
+
+# ---------------------------------------------------------------------------
+# Phase 3 schemas
+# ---------------------------------------------------------------------------
+
+
+class CompleteWorkflowRequest(BaseModel):
+    """Request body for ``POST /api/v1/issue/complete-workflow``."""
+
+    repo_url: str = Field(
+        ...,
+        description="GitHub repository URL.",
+        examples=["https://github.com/pallets/flask"],
+    )
+    issue_number: int = Field(
+        ...,
+        ge=1,
+        description="GitHub issue number to process through the complete workflow.",
+        examples=[5420],
+    )
+
+    @field_validator("repo_url", mode="after")
+    @classmethod
+    def _must_be_github(cls, v: str) -> str:
+        if "github.com" not in v.lower():
+            raise ValueError("Only GitHub repository URLs are supported.")
+        return v.strip().rstrip("/")
+
+
+class WorkflowRepositoryDetail(BaseModel):
+    """Details of the repository under analysis."""
+
+    name: str
+    full_name: str
+    description: str | None = None
+    url: str
+    primary_language: str | None = None
+    default_branch: str
+
+
+class WorkflowClassificationDetail(BaseModel):
+    """Details of the issue classification and suitability assessment."""
+
+    issue_type: str = Field(description="Classified issue type value (bug, feature_request, docs, question, discussion).")
+    issue_type_display: str = Field(description="Human-friendly label for the issue type.")
+    difficulty_estimate: str = Field(description="'easy', 'medium', or 'hard'.")
+    suitability_score: float = Field(description="0–10 suitability score.")
+    beginner_friendly: bool
+
+
+class WorkflowMetadata(BaseModel):
+    """Metadata about the workflow run."""
+
+    status: str = Field(description="Workflow execution status (e.g. 'completed', 'partial').")
+    started_at: str = Field(description="Workflow starting ISO timestamp.")
+    completed_at: str = Field(description="Workflow completion ISO timestamp.")
+    duration_seconds: float = Field(description="Workflow execution duration in seconds.")
+    errors: list[str] = Field(default_factory=list, description="Any warnings or soft error messages encountered.")
+
+
+class CompleteWorkflowResponse(BaseModel):
+    """Response body for ``POST /api/v1/issue/complete-workflow``."""
+
+    repository: WorkflowRepositoryDetail
+    issue: IssueDetail
+    classification: WorkflowClassificationDetail
+    relevant_files: list[str] = Field(default_factory=list, description="Unique file paths from semantic search.")
+    search_results: list[CodeSnippet] = Field(default_factory=list, description="Semantic code search matches.")
+    contribution_plan: ContributionPlanResponse
+    generated_tests: GeneratedTestsResponse | None = Field(default=None, description="Generated test suite (if applicable).")
+    pr_draft: PRDraftResponse | None = Field(default=None, description="Generated PR draft (if applicable).")
+    estimated_effort: str | None = Field(default=None, description="Estimated effort for the contribution plan.")
+    metadata: WorkflowMetadata
+

@@ -29,7 +29,7 @@ class IssueType(str, Enum):
     @property
     def needs_contribution_plan(self) -> bool:
         """True when the issue warrants implementation steps and file changes."""
-        return self in (IssueType.BUG, IssueType.FEATURE_REQUEST, IssueType.DOCUMENTATION)
+        return self in (IssueType.BUG, IssueType.FEATURE_REQUEST, IssueType.DOCUMENTATION, IssueType.UNKNOWN)
 
     @property
     def needs_answer_plan(self) -> bool:

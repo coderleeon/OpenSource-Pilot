@@ -19,6 +19,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.agents.code_analysis_agent import CodeAnalysisAgent
+from app.agents.contribution_workflow_agent import ContributionWorkflowAgent
 from app.agents.issue_agent import IssueAgent
 from app.agents.planning_agent import PlanningAgent
 from app.agents.pr_agent import PRAgent
@@ -29,6 +30,7 @@ from app.config import Settings, get_settings
 from app.core.logging import configure_logging, get_logger
 from app.core.middleware import RequestIDMiddleware, register_exception_handlers
 from app.llm.factory import create_llm_client_from_settings
+from app.services.contribution_workflow_service import ContributionWorkflowService
 from app.services.issue_service import IssueService
 from app.services.repo_service import RepoService
 from app.services.search_service import SearchService
@@ -92,6 +94,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     planning_agent = PlanningAgent(llm_client=llm_client)
     test_generation_agent = TestGenerationAgent(llm_client=llm_client)
     pr_agent = PRAgent(llm_client=llm_client)
+    contribution_workflow_agent = ContributionWorkflowAgent(
+        planning_agent=planning_agent,
+        test_generation_agent=test_generation_agent,
+        pr_agent=pr_agent,
+    )
 
     # ------------------------------------------------------------------ Services
     repo_service = RepoService(
@@ -114,11 +121,19 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         code_analysis_agent=code_analysis_agent,
     )
 
+    contribution_workflow_service = ContributionWorkflowService(
+        repo_agent=repo_agent,
+        issue_agent=issue_agent,
+        code_analysis_agent=code_analysis_agent,
+        workflow_agent=contribution_workflow_agent,
+    )
+
     # ------------------------------------------------------------------ State
     app.state.settings = settings
     app.state.repo_service = repo_service
     app.state.issue_service = issue_service
     app.state.search_service = search_service
+    app.state.contribution_workflow_service = contribution_workflow_service
 
     logger.info("opensourcepilot_ready")
 
