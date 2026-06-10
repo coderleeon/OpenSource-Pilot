@@ -70,11 +70,11 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-bg-base text-slate-100 selection:bg-indigo-500/30">
-      
+
       {/* Top Navbar */}
       <header className="sticky top-0 z-40 w-full border-b border-white/5 bg-bg-base/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          
+
           {/* Logo brand */}
           <div className="flex items-center gap-2.5">
             <div className="p-2 bg-gradient-to-tr from-indigo-500 to-violet-500 rounded-xl text-white shadow-md shadow-indigo-500/10">
@@ -94,7 +94,7 @@ export default function Home() {
               <HelpCircle className="w-4 h-4" />
               How It Works
             </button>
-            
+
             <a
               href="https://github.com/coderleeon/OpenSource-Pilot"
               target="_blank"
@@ -113,12 +113,12 @@ export default function Home() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 flex flex-col gap-10">
-        
+
         {/* Landing Hero Section (only when not showing results or loading) */}
         {!isLoading && !resultData && (
           <div className="text-center max-w-3xl mx-auto flex flex-col gap-4 py-6 md:py-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold w-fit mx-auto animate-float">
-              🚀 Now Supporting Phase 3 Orchestrated Workflows
+              AI-Powered Open Source Contribution Assistant
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-white leading-tight">
               Empower Open Source Contributions with{" "}
@@ -197,7 +197,7 @@ export default function Home() {
         {/* Features / Details cards (only show on landing page) */}
         {!isLoading && !resultData && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
-            
+
             <div className="p-5 rounded-2xl bg-white/[0.01] border border-white/5 flex flex-col gap-2 hover:bg-white/[0.02] transition-colors">
               <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm">
                 1
