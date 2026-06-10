@@ -36,6 +36,9 @@ Guidelines:
 - Add meaningful assertions, not just "assert result is not None"
 - Include necessary imports at the top of each test block
 - Respond ONLY with the JSON object, no other text
+- Keep the generated tests compact.
+- Generate 3-5 representative unit tests, 2-3 integration tests, and 3-5 edge case tests.
+- Do not generate exhaustive suites.
 """
 
 # ---------------------------------------------------------------------------
