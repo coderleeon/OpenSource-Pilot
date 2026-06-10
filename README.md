@@ -1,46 +1,200 @@
 # OpenSourcePilot
 
-> AI-powered open-source contribution assistant.
+AI-powered open-source contribution assistant that helps developers understand GitHub issues, locate relevant code, generate contribution plans, create tests, and draft pull requests.
 
-Given a GitHub repository URL and an issue number, OpenSourcePilot clones the repository, semantically indexes its source code, retrieves the issue, and generates a detailed contribution plan, test suites, and pull request drafts — all through a clean FastAPI backend.
+![Python](https://img.shields.io/badge/Python-3.12-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green)
+![Next.js](https://img.shields.io/badge/Next.js-Frontend-black)
+![Tests](https://img.shields.io/badge/Tests-209%2B-success)
+![Deployment](https://img.shields.io/badge/Deployment-Railway%20%7C%20Vercel-purple)
 
----
+## Live Links
 
-## Live Demo & Docs
+- Frontend: https://open-source-pilot.vercel.app/
+- API Docs: https://web-production-5369f.up.railway.app/docs
+- GitHub: https://github.com/coderleeon/OpenSource-Pilot
 
-- **Live Demo:** `https://your-app.up.railway.app`
-- **Interactive Swagger Docs:** `https://your-app.up.railway.app/docs`
+## Overview
 
----
+OpenSourcePilot analyzes a GitHub repository and issue, retrieves the relevant code context using semantic search, and generates actionable contribution guidance.
+
+Instead of manually exploring large repositories, developers can quickly understand:
+
+* What the issue is about
+* Which files are relevant
+* How to approach the solution
+* What tests should be written
+* What the final pull request could look like
+
+## Features
+
+### Repository Intelligence
+
+* GitHub repository analysis
+* Repository structure parsing
+* Technology stack detection
+* Repository metadata extraction
+
+### Issue Understanding
+
+* GitHub issue retrieval
+* Issue classification
+* Difficulty estimation
+* Contributor suitability scoring
+* Beginner-friendly issue detection
+
+### Semantic Code Search
+
+* ChromaDB vector indexing
+* Sentence-transformer embeddings
+* Relevant file discovery
+* Semantic code retrieval
+
+### Contribution Planning
+
+* Step-by-step implementation plans
+* Root cause analysis
+* Recommended solution approach
+* Contributor guidance
+
+### Automated Test Generation
+
+Supports:
+
+* pytest
+* Jest
+* JUnit
+* Go testing
+* Rust testing
+
+Generates:
+
+* Unit tests
+* Integration tests
+* Edge-case coverage
+
+### Pull Request Drafting
+
+Generates:
+
+* PR title
+* Summary
+* Reviewer notes
+* Testing checklist
+* Labels
+* Complete markdown PR description
+
+### Complete Workflow Execution
+
+Single API call performs:
+
+1. Repository analysis
+2. Issue retrieval
+3. Issue classification
+4. Semantic search
+5. Contribution planning
+6. Test generation
+7. PR drafting
+
+## Architecture
+
+```text
+Frontend (Next.js)
+        │
+        ▼
+FastAPI Backend
+        │
+        ▼
+Contribution Workflow Service
+        │
+ ┌──────┼─────────────┐
+ ▼      ▼             ▼
+Repo   Issue      Planning
+Agent  Agent       Agent
+ │       │           │
+ ▼       ▼           ▼
+GitHub  Search    LLM Layer
+API     Engine
+        │
+        ▼
+     ChromaDB
+```
+
+## Tech Stack
+
+### Frontend
+
+* Next.js
+* TypeScript
+* Tailwind CSS
+
+### Backend
+
+* FastAPI
+* Python
+
+### AI & Retrieval
+
+* OpenRouter
+* OpenAI
+* Anthropic
+* ChromaDB
+* sentence-transformers
+* all-MiniLM-L6-v2
+
+### GitHub Integration
+
+* PyGithub
+* GitPython
+
+### Testing
+
+* Pytest
+
+### Deployment
+
+* Railway
+* Vercel
+
+### Frontend
+
+https://open-source-pilot.vercel.app/
+
+### Backend API Documentation
+
+https://web-production-5369f.up.railway.app/docs
 
 ## Quick Start
 
-### 1. Clone and install
+### Clone Repository
 
 ```bash
-git clone https://github.com/coderleeon/OpenSourcePilot
-cd opensourcepilot
+git clone https://github.com/coderleeon/OpenSourcePilot.git
+cd OpenSourcePilot
+```
+
+### Install Dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-### 2. Configure
+### Configure Environment
 
-```bash
-cp .env.example .env
-# Edit .env and set at minimum:
-#   OPENROUTER_API_KEY=sk-or-v1-...
-#   GITHUB_TOKEN=ghp_...      (optional but recommended)
+```env
+OPENROUTER_API_KEY=your_key
+GITHUB_TOKEN=your_token
+LLM_PROVIDER=openrouter
+OPENROUTER_MODEL=anthropic/claude-3.5-haiku
 ```
 
-### 3. Run Backend
+### Run Backend
 
 ```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn app.main:app --reload
 ```
 
-Open [http://localhost:8000/docs](http://localhost:8000/docs) for the interactive API docs.
-
-### 4. Run Frontend Dashboard
+### Run Frontend
 
 ```bash
 cd frontend
@@ -48,115 +202,120 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) for the visual developer workspace dashboard.
-
----
-
 ## API Endpoints
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET`  | `/health` | Health check (readiness checking) |
-| `POST` | `/api/v1/repo/analyze` | Analyse a GitHub repository |
-| `POST` | `/api/v1/issue/list` | List & rank open issues |
-| `POST` | `/api/v1/issue/analyze` | Analyse a specific issue |
-| `POST` | `/api/v1/issue/generate-tests` | Generate unit, integration, and edge-case tests |
-| `POST` | `/api/v1/issue/generate-pr-draft` | Generate a conventional commit PR title and description |
-| `POST` | `/api/v1/issue/complete-workflow` | Run the complete end-to-end contribution pipeline |
-| `POST` | `/api/v1/search/code` | Perform a local semantic code search |
+### Repository Analysis
 
-### Execute complete contribution workflow
+```http
+POST /api/v1/repo/analyze
+```
+
+### Issue Analysis
+
+```http
+POST /api/v1/issue/analyze
+```
+
+### Issue Listing
+
+```http
+POST /api/v1/issue/list
+```
+
+### Semantic Code Search
+
+```http
+POST /api/v1/search/code
+```
+
+### Complete Workflow
+
+```http
+POST /api/v1/issue/complete-workflow
+```
+
+Example:
+
+```json
+{
+  "repo_url": "https://github.com/pallets/flask",
+  "issue_number": 5400
+}
+```
+
+## Testing
+
+Run all tests:
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/issue/complete-workflow \
-  -H "Content-Type: application/json" \
-  -d '{"repo_url": "https://github.com/pallets/flask", "issue_number": 5420}'
-```
-
----
-
-## Project Structure
-
-```
-app/
-├── main.py               # FastAPI app factory & lifespan (DI wiring)
-├── config.py             # Settings via pydantic-settings
-├── api/                  # HTTP layer (schemas + endpoints)
-│   ├── deps.py           # FastAPI Depends providers
-│   └── v1/
-│       ├── schemas/      # Pydantic request/response models
-│       └── endpoints/    # Thin route handlers
-├── services/             # Workflow orchestration
-├── agents/               # Domain logic
-│   ├── repo_agent.py     # Clone · parse · metadata
-│   ├── issue_agent.py    # Retrieve · rank issues
-│   ├── code_analysis_agent.py  # Chunk · embed · search
-│   ├── planning_agent.py       # LLM plans
-│   ├── test_generation_agent.py # LLM framework-aware tests
-│   ├── pr_agent.py             # LLM PR descriptions
-│   └── contribution_workflow_agent.py # Unified agent coordinator
-├── tools/                # External integrations
-│   ├── git_tool.py       # GitPython wrapper
-│   ├── github_api_tool.py # PyGithub wrapper
-│   ├── structure_parser.py # Directory tree + tech stack
-│   ├── code_chunker.py   # File → CodeChunk splitting
-│   └── chroma_tool.py    # ChromaDB client
-├── llm/                  # LLM abstraction
-│   ├── base.py           # LLMClient ABC
-│   ├── openrouter_client.py  # Default provider
-│   ├── openai_client.py
-│   ├── anthropic_client.py
-│   └── factory.py
-├── models/               # Pure domain dataclasses
-└── core/                 # Exceptions · logging · middleware
-```
-
----
-
-## Deployment
-
-For production deployment onto the **Railway** serverless cloud platform, see [DEPLOYMENT.md](DEPLOYMENT.md) for step-by-step instructions on project creation, persistent storage volume mounting, and environment variable references.
-
----
-
-## Configuration Reference
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `LLM_PROVIDER` | `openrouter` | LLM provider: `openrouter`, `openai`, `anthropic` |
-| `OPENROUTER_API_KEY` | — | OpenRouter API key |
-| `OPENROUTER_MODEL` | `anthropic/claude-3.5-haiku` | Model string |
-| `GITHUB_TOKEN` | — | GitHub PAT (60 req/hr without) |
-| `CLONE_BASE_DIR` | `./cloned_repos` | Where repos are cloned |
-| `CHROMA_PERSIST_DIR` | `./chroma_db` | ChromaDB persistence directory |
-| `MAX_FILES_TO_INDEX` | `500` | Max source files per repo |
-| `MAX_FILE_SIZE_KB` | `512` | Max file size to index |
-| `EMBEDDING_MODEL` | `all-MiniLM-L6-v2` | Local sentence-transformers model |
-| `LOG_LEVEL` | `INFO` | Log level |
-| `LOG_FORMAT` | `console` | `console` or `json` |
-
----
-
-## Running Tests
-
-```bash
-# Unit tests only (no network, fast)
-pytest tests/unit/ -v
-
-# Integration tests (mocked network, slightly slower)
-pytest tests/integration/ -v -m integration
-
-# All tests
 pytest -v
 ```
 
----
+Current Status:
 
-## Phase Roadmap
+* 209+ tests passing
 
-| Phase | Status | Features |
-|-------|--------|----------|
-| 1 — MVP | ✅ Complete | Repo analysis · Issue discovery · Code indexing · Contribution plans |
-| 2 — Enhanced | ✅ Complete | Test generation · PR drafting · Semantic code search |
-| 3 — Production | ✅ Complete | Complete end-to-end workflow · Readiness healthchecks · Railway deployment configurations |
-| 4 — Frontend | ✅ Complete | Next.js 16 UI Dashboard · Preset repo examples · Vector flow modal · Clipboard support |
+## Example Workflow
+
+Input:
+
+```text
+Repository:
+https://github.com/pallets/flask
+
+Issue:
+5400
+```
+
+Output:
+
+* Issue classification
+* Repository metadata
+* Relevant files
+* Semantic search results
+* Contribution plan
+* Generated tests
+* Pull request draft
+
+## Screenshots
+
+Add screenshots of:
+
+* Dashboard
+* Workflow execution
+* Contribution plan
+* Generated tests
+* PR draft
+
+## Roadmap
+
+### Completed
+
+* Repository analysis
+* Issue analysis
+* Semantic code search
+* Contribution planning
+* Test generation
+* PR drafting
+* Complete workflow orchestration
+* Web interface
+* Railway deployment
+* Vercel deployment
+
+### Future Improvements
+
+* Repository health reports
+* Good-first-issue recommendations
+* Contributor readiness scoring
+* Workflow caching
+* Advanced repository analytics
+
+## Author
+
+Leeon John
+
+GitHub:
+https://github.com/coderleeon
+
+LinkedIn:
+https://www.linkedin.com/in/leeon-john-14172a159/
