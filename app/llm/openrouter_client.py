@@ -69,7 +69,7 @@ class OpenRouterClient(LLMClient):
         prompt: str,
         system: str = "",
         temperature: float = 0.3,
-        max_tokens: int = 4096,
+        max_tokens: int = 1000,
     ) -> str:
         """Send a chat completion request to OpenRouter.
 

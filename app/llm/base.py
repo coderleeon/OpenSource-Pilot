@@ -38,7 +38,7 @@ class LLMClient(ABC):
         prompt: str,
         system: str = "",
         temperature: float = 0.3,
-        max_tokens: int = 4096,
+        max_tokens: int = 1000,
     ) -> str:
         """Send a prompt and return the model's text response.
 
@@ -61,7 +61,7 @@ class LLMClient(ABC):
         prompt: str,
         system: str = "",
         temperature: float = 0.1,
-        max_tokens: int = 4096,
+        max_tokens: int = 1000,
     ) -> dict:  # type: ignore[type-arg]
         """Send a prompt and parse the response as JSON.
 
