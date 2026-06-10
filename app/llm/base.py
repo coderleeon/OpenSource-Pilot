@@ -87,6 +87,11 @@ class LLMClient(ABC):
             temperature=temperature,
             max_tokens=max_tokens,
         )
+
+        logger.info(
+            "llm_raw_response",
+            length=len(raw),
+        )
         return self._extract_json(raw)
 
     @staticmethod
