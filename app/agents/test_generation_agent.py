@@ -200,7 +200,7 @@ Respond with ONLY the JSON object."""
             prompt=prompt,
             system=_SYSTEM,
             temperature=0.2,
-            max_tokens=1000,
+            max_tokens=1500,
         )
 
         result = GeneratedTests(
