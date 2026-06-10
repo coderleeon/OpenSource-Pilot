@@ -177,7 +177,7 @@ class GitHubAPITool:
             return self._map_issue(issue)
         except UnknownObjectException as exc:
             raise IssueNotFoundError(
-                f"Issue #{number} not found",
+                f"Issue #{number} was not found in this repository.",
                 details=str(exc),
             ) from exc
         except GithubException as exc:

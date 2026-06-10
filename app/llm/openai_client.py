@@ -51,7 +51,7 @@ class OpenAIClient(LLMClient):
         prompt: str,
         system: str = "",
         temperature: float = 0.3,
-        max_tokens: int = 4096,
+        max_tokens: int = 1500,
     ) -> str:
         """Send a chat completion request to OpenAI."""
         messages: list[dict[str, str]] = []

@@ -212,7 +212,7 @@ class TestCompleteWorkflowEndpoint:
         test_client: TestClient,
         mock_workflow_service: AsyncMock,
     ) -> None:
-        mock_workflow_service.run_complete_workflow.side_effect = IssueNotFoundError("Issue #999 not found")
+        mock_workflow_service.run_complete_workflow.side_effect = IssueNotFoundError("Issue #999 was not found in this repository.")
 
         response = test_client.post(
             "/api/v1/issue/complete-workflow",
@@ -222,7 +222,9 @@ class TestCompleteWorkflowEndpoint:
             },
         )
         assert response.status_code == 404
-        assert response.json()["error"] == "IssueNotFoundError"
+        assert response.json() == {
+            "detail": "Issue #999 was not found in this repository."
+        }
 
     def test_github_api_error_returns_502(
         self,

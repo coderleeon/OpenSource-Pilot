@@ -107,6 +107,21 @@ def register_exception_handlers(app: FastAPI) -> None:
         app: The FastAPI application instance.
     """
 
+    @app.exception_handler(IssueNotFoundError)
+    async def handle_issue_not_found(request: Request, exc: IssueNotFoundError) -> JSONResponse:  # type: ignore[type-arg]
+        logger.warning(
+            "issue_not_found_error",
+            error_type="IssueNotFoundError",
+            message=exc.message,
+            status_code=404,
+        )
+        return JSONResponse(
+            status_code=404,
+            content={
+                "detail": exc.message,
+            },
+        )
+
     @app.exception_handler(OpenSourcePilotError)
     async def handle_app_error(request: Request, exc: OpenSourcePilotError) -> JSONResponse:  # type: ignore[type-arg]
         status_code = _EXCEPTION_STATUS_MAP.get(type(exc), 500)

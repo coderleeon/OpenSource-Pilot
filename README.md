@@ -32,13 +32,23 @@ cp .env.example .env
 #   GITHUB_TOKEN=ghp_...      (optional but recommended)
 ```
 
-### 3. Run
+### 3. Run Backend
 
 ```bash
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 Open [http://localhost:8000/docs](http://localhost:8000/docs) for the interactive API docs.
+
+### 4. Run Frontend Dashboard
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) for the visual developer workspace dashboard.
 
 ---
 
@@ -149,3 +159,4 @@ pytest -v
 | 1 — MVP | ✅ Complete | Repo analysis · Issue discovery · Code indexing · Contribution plans |
 | 2 — Enhanced | ✅ Complete | Test generation · PR drafting · Semantic code search |
 | 3 — Production | ✅ Complete | Complete end-to-end workflow · Readiness healthchecks · Railway deployment configurations |
+| 4 — Frontend | ✅ Complete | Next.js 16 UI Dashboard · Preset repo examples · Vector flow modal · Clipboard support |
