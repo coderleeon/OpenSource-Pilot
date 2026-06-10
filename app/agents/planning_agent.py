@@ -301,7 +301,7 @@ class PlanningAgent(BaseAgent):
             prompt=prompt,
             system=_CONTRIBUTION_SYSTEM,
             temperature=0.2,
-            max_tokens=3000,
+            max_tokens=1000,
         )
         self.logger.info(
             "contribution_plan_generated",
@@ -334,7 +334,7 @@ class PlanningAgent(BaseAgent):
             prompt=prompt,
             system=_ANSWER_SYSTEM,
             temperature=0.3,
-            max_tokens=2000,
+            max_tokens=1000,
         )
         self.logger.info(
             "answer_plan_generated",

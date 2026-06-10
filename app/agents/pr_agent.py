@@ -154,7 +154,7 @@ Respond with ONLY the JSON object."""
             prompt=prompt,
             system=_SYSTEM,
             temperature=0.3,
-            max_tokens=2500,
+            max_tokens=1000,
         )
 
         # Assemble draft_body if LLM didn't provide it (fallback)

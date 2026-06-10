@@ -51,7 +51,7 @@ class OpenAIClient(LLMClient):
         prompt: str,
         system: str = "",
         temperature: float = 0.3,
-        max_tokens: int = 1500,
+        max_tokens: int = 1000,
     ) -> str:
         """Send a chat completion request to OpenAI."""
         messages: list[dict[str, str]] = []
@@ -64,7 +64,7 @@ class OpenAIClient(LLMClient):
                 model=self._model,
                 messages=messages,  # type: ignore[arg-type]
                 temperature=temperature,
-                max_tokens=max_tokens,
+                max_tokens=4000,
             )
             return response.choices[0].message.content or ""
         except (openai.RateLimitError, openai.APITimeoutError, openai.APIConnectionError):
