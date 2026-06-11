@@ -314,8 +314,11 @@ Add screenshots of:
 
 Leeon John
 
+Twitter - https://x.com/LeeonJohn_
+
 GitHub:
 https://github.com/coderleeon
+
 
 LinkedIn:
 https://www.linkedin.com/in/leeon-john-14172a159/
