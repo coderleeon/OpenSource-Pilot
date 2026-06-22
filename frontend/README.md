@@ -1,6 +1,7 @@
 # OpenSourcePilot — Contributor Dashboard Web App
 
-A Next.js 16 + TypeScript + Tailwind CSS v4 dashboard providing visual support for OpenSourcePilot Phase 3 agentic contributor pipelines.
+A Next.js + TypeScript + Tailwind CSS dashboard providing visual support for OpenSourcePilot Phase 5 agentic contributor pipelines, including Open Source Radar opportunity discovery, repository structure exploration, health audits, solution planning, and PR generation workflows.
+
 
 ---
 

@@ -1,324 +1,230 @@
-# OpenSourcePilot
+# OpenSourcePilot ✈️
 
-AI-powered open-source contribution assistant that helps developers understand GitHub issues, locate relevant code, generate contribution plans, create tests, and draft pull requests.
+The complete AI-powered open-source contribution platform. OpenSourcePilot helps developers discover the right issues, analyze codebases, plan solutions, generate test suites, and draft pull requests in one unified workflow.
 
-![Python](https://img.shields.io/badge/Python-3.12-blue)
-![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green)
-![Next.js](https://img.shields.io/badge/Next.js-Frontend-black)
-![Tests](https://img.shields.io/badge/Tests-209%2B-success)
-![Deployment](https://img.shields.io/badge/Deployment-Railway%20%7C%20Vercel-purple)
+![Python](https://img.shields.io/badge/Python-3.12-blue?style=flat-square&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green?style=flat-square&logo=fastapi&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-Frontend-black?style=flat-square&logo=nextdotjs&logoColor=white)
+![Tests](https://img.shields.io/badge/Tests-212%20Passing-success?style=flat-square)
+![Deployment](https://img.shields.io/badge/Deployment-Railway%20%7C%20Vercel-purple?style=flat-square)
 
-## Live Links
+---
 
-- Frontend: https://open-source-pilot.vercel.app/
-- API Docs: https://web-production-5369f.up.railway.app/docs
-- GitHub: https://github.com/coderleeon/OpenSource-Pilot
+### 🌐 Live Platform
 
-## Overview
+* **Web Client:** [https://open-source-pilot.vercel.app/](https://open-source-pilot.vercel.app/)
+* **Interactive API Docs:** [https://web-production-5369f.up.railway.app/docs](https://web-production-5369f.up.railway.app/docs)
+* **GitHub Repository:** [https://github.com/coderleeon/OpenSource-Pilot](https://github.com/coderleeon/OpenSource-Pilot)
 
-OpenSourcePilot analyzes a GitHub repository and issue, retrieves the relevant code context using semantic search, and generates actionable contribution guidance.
+---
 
-Instead of manually exploring large repositories, developers can quickly understand:
+## 🧭 The Contributor Journey
 
-* What the issue is about
-* Which files are relevant
-* How to approach the solution
-* What tests should be written
-* What the final pull request could look like
+OpenSourcePilot bridges the gap between searching for issues and writing pull requests. It organizes the contribution lifecycle into a logical, three-phase flow:
 
-## Features
-
-### Repository Intelligence
-
-* GitHub repository analysis
-* Repository structure parsing
-* Technology stack detection
-* Repository metadata extraction
-
-### Issue Understanding
-
-* GitHub issue retrieval
-* Issue classification
-* Difficulty estimation
-* Contributor suitability scoring
-* Beginner-friendly issue detection
-
-### Semantic Code Search
-
-* ChromaDB vector indexing
-* Sentence-transformer embeddings
-* Relevant file discovery
-* Semantic code retrieval
-
-### Contribution Planning
-
-* Step-by-step implementation plans
-* Root cause analysis
-* Recommended solution approach
-* Contributor guidance
-
-### Automated Test Generation
-
-Supports:
-
-* pytest
-* Jest
-* JUnit
-* Go testing
-* Rust testing
-
-Generates:
-
-* Unit tests
-* Integration tests
-* Edge-case coverage
-
-### Pull Request Drafting
-
-Generates:
-
-* PR title
-* Summary
-* Reviewer notes
-* Testing checklist
-* Labels
-* Complete markdown PR description
-
-### Complete Workflow Execution
-
-Single API call performs:
-
-1. Repository analysis
-2. Issue retrieval
-3. Issue classification
-4. Semantic search
-5. Contribution planning
-6. Test generation
-7. PR drafting
-
-## Architecture
-
-```text
-Frontend (Next.js)
-        │
-        ▼
-FastAPI Backend
-        │
-        ▼
-Contribution Workflow Service
-        │
- ┌──────┼─────────────┐
- ▼      ▼             ▼
-Repo   Issue      Planning
-Agent  Agent       Agent
- │       │           │
- ▼       ▼           ▼
-GitHub  Search    LLM Layer
-API     Engine
-        │
-        ▼
-     ChromaDB
+```
+    ┌─────────────────────────┐      ┌─────────────────────────┐      ┌─────────────────────────┐
+    │     1. DISCOVER         │ ───> │       2. ANALYZE        │ ───> │      3. CONTRIBUTE      │
+    │  Open Source Radar      │      │   Repository Insights   │      │    AI-Guided Coding     │
+    └─────────────────────────┘      └─────────────────────────┘      └─────────────────────────┘
 ```
 
-## Tech Stack
+1. **Discover (Open Source Radar):** Scan the open-source ecosystem for issues matching your skills, experience, and interests. Assess community health, merge confidence, and contributor fit before starting.
+2. **Analyze (Codebase Exploration):** Understand the target repository's internal modules, structure tree, README conventions, and missing capability areas.
+3. **Contribute (Solution & PR Drafts):** Generate target-relevant files lists, step-by-step solution drafts, unit/integration test suites, and review-ready pull requests.
 
-### Frontend
+---
 
-* Next.js
-* TypeScript
-* Tailwind CSS
+## ⚡ Core Capabilities
 
-### Backend
+### 📡 Phase 5: Open Source Radar
+Search and evaluate GitHub repositories to find high-value open-source opportunities tailored to you.
+* **Dynamic Contributor Fit Scoring:** Grade issue compatibility (0-100) and learning return based on user profile.
+* **Merge Probability Engine:** Assess the likelihood of PR acceptance based on maintainer turnaround and issue history.
+* **Repository Health Analytics:** Track community metrics, release frequency, and open issue trends.
+* **Missing Feature Detection:** Receive LLM-generated feature suggestions to pitch to project maintainers.
+* **Local Saved Pipeline:** Track and manage saved contribution targets locally.
 
-* FastAPI
-* Python
+### 🔍 Repository Intelligence & Semantic Search
+Parse and index codebases to locate relevant segments without manual digging.
+* **Structure & Stack Analysis:** Extract codebase directory structures and auto-detect primary languages and framework stacks.
+* **ChromaDB Vector Indexing:** Create code-snippet embeddings using `sentence-transformers` for instant code context lookup.
+* **Semantic Context Retrieval:** Match user query descriptions directly with relevant source files.
 
-### AI & Retrieval
+### 🛠️ Solution Planning & Auto-Testing
+Go from understanding an issue to a complete contribution draft.
+* **Actionable Contribution Plans:** Auto-generate root-cause hypotheses and sequential step-by-step implementation lists.
+* **Multi-Language Test Generators:** Generate unit and integration test boilerplate for `pytest`, `Jest`, `JUnit`, `Go testing`, and `Rust testing`.
+* **PR Draft Synthesis:** Formulate pull request summaries, Conventional Commits titles, and reviewer checklists.
 
-* OpenRouter
-* OpenAI
-* Anthropic
-* ChromaDB
-* sentence-transformers
-* all-MiniLM-L6-v2
+---
 
-### GitHub Integration
+## 📐 Architecture
 
-* PyGithub
-* GitPython
+OpenSourcePilot separates orchestration, scheduling, and AI agent execution layers for testability and scaling:
 
-### Testing
+```mermaid
+flowchart TD
+    Client["Next.js React Frontend"] <-->|REST API / JSON| FastAPI["FastAPI Backend Gateway"]
+    
+    subgraph Services ["Application Services"]
+        WorkflowService["Contribution Workflow Service"]
+        RadarService["Radar Service"]
+        RepoService["Repo Service"]
+    end
+    
+    FastAPI <--> Services
+    
+    subgraph Agents ["AI Agent Layer"]
+        WorkflowAgent["Contribution Workflow Agent"]
+        RadarAgent["Radar Agent"]
+        RepoAgent["Repo Agent"]
+        PlanningAgent["Planning Agent"]
+        TestGenAgent["Test Gen Agent"]
+        PRAgent["PR Agent"]
+    end
+    
+    WorkflowService <--> WorkflowAgent
+    RadarService <--> RadarAgent
+    RepoService <--> RepoAgent
+    
+    WorkflowAgent --> PlanningAgent & TestGenAgent & PRAgent
+    
+    subgraph External ["Data & Context Engines"]
+        GitHub["GitHub API (PyGithub)"]
+        Chroma["ChromaDB Vector Store"]
+        LLM["LLM Layer (OpenRouter / Claude / OpenAI)"]
+    end
+    
+    RepoAgent <--> GitHub
+    RadarAgent <--> GitHub & LLM
+    PlanningAgent & TestGenAgent & PRAgent <--> LLM
+    Chroma <--> WorkflowService
+```
 
-* Pytest
+---
 
-### Deployment
+## 🖼️ Application Interfaces
 
-* Railway
-* Vercel
+### 1. Open Source Radar (Discover)
+Input developer profiles and get suited contribution listings.
+![Open Source Radar Dashboard](demo_img_1.png)
 
-### Frontend
+### 2. Tailored Search & Experience Filters
+Refine listings by skill keywords and contribution ease levels.
+![Radar Filters](filter_img_1.png)
+![Experience Level Selector](exp_level.png)
 
-https://open-source-pilot.vercel.app/
+### 3. Contributor Fit & Health Visualizers
+Understand repository health and merge probability indicators.
+![Fit Scoring](contributor_img.png)
+![Saved Opportunities Pipeline](oppurtunity_pip.png)
 
-### Backend API Documentation
+### 4. Repository Structure Analyzer
+Explore directory trees, tech stacks, and missing feature recommendations.
+![Repository Analysis Tab](analyze_interface.png)
 
-https://web-production-5369f.up.railway.app/docs
+### 5. AI Code Synthesis & PR Drafter
+Plan changes, build integration tests, and output complete Pull Request descriptions.
+![Contribution Workflow Tab](contribution_interface.png)
 
-## Quick Start
+---
 
-### Clone Repository
+## 🛠️ Tech Stack
 
+* **Frontend:** Next.js (TypeScript, Tailwind CSS, Lucide icons)
+* **Backend:** FastAPI, Uvicorn, Python 3.12+
+* **Semantic Search:** ChromaDB, `sentence-transformers` (`all-MiniLM-L6-v2` embeddings)
+* **AI Engine:** OpenRouter SDK (Defaulting to Anthropic Claude 3.5 Haiku)
+* **GitHub Integration:** PyGithub, GitPython
+* **Testing:** Pytest
+
+---
+
+## 🚀 Quick Start
+
+### 1. Clone & Set Up Directory
 ```bash
 git clone https://github.com/coderleeon/OpenSourcePilot.git
 cd OpenSourcePilot
 ```
 
-### Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### Configure Environment
-
+### 2. Configure Environment
+Create a `.env` file in the root directory:
 ```env
-OPENROUTER_API_KEY=your_key
-GITHUB_TOKEN=your_token
+OPENROUTER_API_KEY=your_openrouter_api_key
+GITHUB_TOKEN=your_github_personal_access_token
 LLM_PROVIDER=openrouter
 OPENROUTER_MODEL=anthropic/claude-3.5-haiku
 ```
 
-### Run Backend
-
+### 3. Run Backend (Uvicorn)
 ```bash
+# Set up virtual environment
+python -m venv .venv
+.venv\Scripts\activate   # Windows
+source .venv/bin/activate # macOS/Linux
+
+# Install dependencies and start server
+pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
+*API docs will be available at:* `http://localhost:8000/docs`
 
-### Run Frontend
-
+### 4. Run Frontend Client
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+*Frontend interface will be available at:* `http://localhost:3000`
 
-## API Endpoints
-
-### Repository Analysis
-
-```http
-POST /api/v1/repo/analyze
-```
-
-### Issue Analysis
-
-```http
-POST /api/v1/issue/analyze
-```
-
-### Issue Listing
-
-```http
-POST /api/v1/issue/list
-```
-
-### Semantic Code Search
-
-```http
-POST /api/v1/search/code
-```
-
-### Complete Workflow
-
-```http
-POST /api/v1/issue/complete-workflow
-```
-
-Example:
-
-```json
-{
-  "repo_url": "https://github.com/pallets/flask",
-  "issue_number": 5400
-}
-```
-
-## Testing
-
-Run all tests:
-
+### 5. Run Verification Tests
 ```bash
 pytest -v
 ```
 
-Current Status:
+---
 
-* 209+ tests passing
+## 🔌 API Endpoints Reference
 
-## Example Workflow
+### Open Source Radar (Phase 5)
+* `POST /api/v1/radar/discover` - Scan for suitable issues based on skills, tech, interest, and experience level.
+* `POST /api/v1/radar/repo-health` - Evaluate repository health scores, velocity, and active community trends.
+* `POST /api/v1/radar/missing-features` - Fetch missing capability suggestions for a target repository.
 
-Input:
+### Repository Indexing
+* `POST /api/v1/repo/analyze` - Clones a repository, parses structure, and indexes files into vector storage.
+* `POST /api/v1/search/code` - Query code snippets semantically.
 
-```text
-Repository:
-https://github.com/pallets/flask
+### Issue Analysis
+* `POST /api/v1/issue/list` - List open issues for a repository.
+* `POST /api/v1/issue/analyze` - Retrieve specific issue details and classify type/difficulty.
+* `POST /api/v1/issue/complete-workflow` - Execute complete synthesis workflow (Analyze ➔ Plan ➔ Test ➔ PR).
 
-Issue:
-5400
-```
+---
 
-Output:
+## 🗺️ Roadmap & Release History
 
-* Issue classification
-* Repository metadata
-* Relevant files
-* Semantic search results
-* Contribution plan
-* Generated tests
-* Pull request draft
+### **Phase 5 (Shipped - Current)**
+- [x] **Open Source Radar:** Match issues dynamically based on dev profile.
+- [x] **Merge Confidence Estimator:** Predict PR merge probability.
+- [x] **Health Audits:** Analyze repo release frequency and maintainer activity.
+- [x] **Missing Capability Detectors:** Suggest README optimizations and missing feature hooks.
+- [x] **Visual Dashboard:** Redesigned Next.js visual suite with localized saved pipelines.
 
-## Screenshots
+### **Phase 4 & Prior**
+- [x] Semantic vector retrieval using ChromaDB.
+- [x] Dynamic test script generators for JavaScript, Python, Rust, and Go.
+- [x] Contextual Conventional Commit PR drafting.
+- [x] Dockerization and multi-cloud configurations (Railway, Vercel).
 
-Add screenshots of:
+---
 
-* Dashboard
-* Workflow execution
-* Contribution plan
-* Generated tests
-* PR draft
+## 👤 Author & Contributors
 
-## Roadmap
+Developed and maintained by **Leeon John**. 
 
-### Completed
-
-* Repository analysis
-* Issue analysis
-* Semantic code search
-* Contribution planning
-* Test generation
-* PR drafting
-* Complete workflow orchestration
-* Web interface
-* Railway deployment
-* Vercel deployment
-
-### Future Improvements
-
-* Repository health reports
-* Good-first-issue recommendations
-* Contributor readiness scoring
-* Workflow caching
-* Advanced repository analytics
-
-## Author
-
-Leeon John
-
-Twitter - https://x.com/LeeonJohn_
-
-GitHub:
-https://github.com/coderleeon
-
-
-LinkedIn:
-https://www.linkedin.com/in/leeon-john-14172a159/
+* **Twitter:** [@LeeonJohn_](https://x.com/LeeonJohn_)
+* **LinkedIn:** [Leeon John Profile](https://www.linkedin.com/in/leeon-john-14172a159/)
+* **GitHub:** [@coderleeon](https://github.com/coderleeon)
