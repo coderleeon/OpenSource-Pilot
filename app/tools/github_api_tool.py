@@ -127,6 +127,18 @@ class GitHubAPITool:
         gh_repo = await self.get_gh_repo(repo_url)
         return await asyncio.to_thread(self._get_file_sync, gh_repo, file_path)
 
+    async def search_issues(
+        self,
+        query: str,
+        limit: int = 30,
+    ) -> list[dict]:
+        """Search issues globally on GitHub.
+
+        Returns:
+            List of dictionaries containing the GitHubIssue and repository metadata.
+        """
+        return await asyncio.to_thread(self._search_issues_sync, query, limit)
+
     # ------------------------------------------------------------------
     # Synchronous helpers (run in thread pool)
     # ------------------------------------------------------------------
@@ -200,6 +212,49 @@ class GitHubAPITool:
         except GithubException as exc:
             logger.warning("file_content_fetch_failed", path=file_path, error=str(exc))
             return None
+
+    def _search_issues_sync(self, query: str, limit: int) -> list[dict]:
+        try:
+            issues = self._gh.search_issues(query)
+            result: list[dict] = []
+            for issue in issues:
+                if len(result) >= limit:
+                    break
+                # PyGithub returns PRs in issue list; filter them out
+                if issue.pull_request:
+                    continue
+                try:
+                    repo = issue.repository
+                    try:
+                        topics = list(repo.get_topics())
+                    except Exception:
+                        topics = []
+                    
+                    repo_dict = {
+                        "name": repo.name,
+                        "full_name": repo.full_name,
+                        "description": repo.description,
+                        "url": repo.html_url,
+                        "stars": repo.stargazers_count,
+                        "forks": repo.forks_count,
+                        "open_issues_count": repo.open_issues_count,
+                        "primary_language": repo.language,
+                        "topics": topics,
+                    }
+                    mapped_issue = self._map_issue(issue)
+                    result.append({
+                        "issue": mapped_issue,
+                        "repository": repo_dict
+                    })
+                except Exception as e:
+                    logger.warning("failed_mapping_search_issue", error=str(e))
+                    continue
+            return result
+        except GithubException as exc:
+            raise GitHubAPIError(
+                f"Failed to search issues with query: {query}",
+                details=str(exc),
+            ) from exc
 
     @staticmethod
     def _map_issue(issue: object) -> GitHubIssue:  # type: ignore[type-arg]

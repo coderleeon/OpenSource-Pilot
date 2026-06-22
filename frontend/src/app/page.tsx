@@ -1,18 +1,110 @@
 "use client";
 
-import React, { useState } from "react";
-import { Compass, HelpCircle, AlertCircle, RefreshCw, Search } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Compass, HelpCircle, AlertCircle, RefreshCw, Search, Award, Bookmark, ShieldAlert, Sparkles, GitBranch, CheckCircle2 } from "lucide-react";
 import HowItWorksModal from "@/components/HowItWorksModal";
 import WorkflowForm from "@/components/WorkflowForm";
 import WorkflowLoading from "@/components/WorkflowLoading";
 import ResultDashboard from "@/components/ResultDashboard";
+import DiscoverTab from "@/components/DiscoverTab";
+import AnalyzeTab from "@/components/AnalyzeTab";
+import PipelinePanel from "@/components/PipelinePanel";
+import ImpactDashboard from "@/components/ImpactDashboard";
+
+interface ImpactStats {
+  issuesSolved: number;
+  prsSubmitted: number;
+  prsMerged: number;
+  reposContributed: number;
+}
 
 export default function Home() {
+  const [activeTab, setActiveTab] = useState<"discover" | "analyze" | "contribute">("discover");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Pipeline state
+  const [savedOpportunities, setSavedOpportunities] = useState<any[]>([]);
+  const [savedIds, setSavedIds] = useState<string[]>([]);
+  
+  // Impact Stats state
+  const [impactStats, setImpactStats] = useState<ImpactStats>({
+    issuesSolved: 0,
+    prsSubmitted: 0,
+    prsMerged: 0,
+    reposContributed: 0,
+  });
+
+  // Contribute states
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resultData, setResultData] = useState<any>(null);
   const [isNotFound, setIsNotFound] = useState(false);
+
+  // Initial routing targets when transitioning between tabs
+  const [analyzeUrl, setAnalyzeUrl] = useState("");
+  const [contributeUrl, setContributeUrl] = useState("");
+  const [contributeIssue, setContributeIssue] = useState("");
+
+  // Load from local storage on mount
+  useEffect(() => {
+    try {
+      const storedPipeline = localStorage.getItem("opensourcepilot_pipeline");
+      if (storedPipeline) {
+        const parsed = JSON.parse(storedPipeline);
+        setSavedOpportunities(parsed);
+        setSavedIds(parsed.map((opp: any) => `${opp.repository.full_name}#${opp.issue.number}`));
+      }
+
+      const storedStats = localStorage.getItem("opensourcepilot_impact");
+      if (storedStats) {
+        setImpactStats(JSON.parse(storedStats));
+      }
+    } catch (e) {
+      console.error("Failed loading local storage", e);
+    }
+  }, []);
+
+  const handleUpdateStats = (newStats: ImpactStats) => {
+    setImpactStats(newStats);
+    localStorage.setItem("opensourcepilot_impact", JSON.stringify(newStats));
+  };
+
+  const handleSaveOpportunity = (opp: any) => {
+    const key = `${opp.repository.full_name}#${opp.issue.number}`;
+    let newPipeline = [...savedOpportunities];
+    
+    if (savedIds.includes(key)) {
+      newPipeline = newPipeline.filter(item => `${item.repository.full_name}#${item.issue.number}` !== key);
+    } else {
+      newPipeline.push(opp);
+      // Increment saved repos stat
+      const newStats = { ...impactStats, reposContributed: impactStats.reposContributed + 1 };
+      handleUpdateStats(newStats);
+    }
+
+    setSavedOpportunities(newPipeline);
+    setSavedIds(newPipeline.map(item => `${item.repository.full_name}#${item.issue.number}`));
+    localStorage.setItem("opensourcepilot_pipeline", JSON.stringify(newPipeline));
+  };
+
+  const handleRemoveOpportunity = (opp: any) => {
+    const key = `${opp.repository.full_name}#${opp.issue.number}`;
+    const newPipeline = savedOpportunities.filter(item => `${item.repository.full_name}#${item.issue.number}` !== key);
+    setSavedOpportunities(newPipeline);
+    setSavedIds(newPipeline.map(item => `${item.repository.full_name}#${item.issue.number}`));
+    localStorage.setItem("opensourcepilot_pipeline", JSON.stringify(newPipeline));
+  };
+
+  const handleAnalyzeRepo = (url: string) => {
+    setAnalyzeUrl(url);
+    setActiveTab("analyze");
+  };
+
+  const handleContribute = (url: string, issueNumber: number) => {
+    setContributeUrl(url);
+    setContributeIssue(issueNumber.toString());
+    setActiveTab("contribute");
+  };
 
   const handleStartWorkflow = async (repoUrl: string, issueNumber: number) => {
     setIsLoading(true);
@@ -54,6 +146,15 @@ export default function Home() {
 
       const data = await response.json();
       setResultData(data);
+      
+      // Auto increment submitted PR and issues solved stats on success
+      const newStats = {
+        ...impactStats,
+        prsSubmitted: impactStats.prsSubmitted + 1,
+        issuesSolved: impactStats.issuesSolved + 1
+      };
+      handleUpdateStats(newStats);
+
     } catch (err: any) {
       console.error(err);
       setError(err.message || "Failed to establish a connection to the OpenSourcePilot backend API.");
@@ -66,6 +167,8 @@ export default function Home() {
     setResultData(null);
     setError(null);
     setIsNotFound(false);
+    setContributeUrl("");
+    setContributeIssue("");
   };
 
   return (
@@ -76,23 +179,57 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
 
           {/* Logo brand */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 shrink-0">
             <div className="p-2 bg-gradient-to-tr from-indigo-500 to-violet-500 rounded-xl text-white shadow-md shadow-indigo-500/10">
-              <Compass className="w-5 h-5 animate-pulse" />
+              <Compass className="w-5 h-5" />
             </div>
             <span className="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-100 to-slate-400">
               OpenSource<span className="text-indigo-400">Pilot</span>
             </span>
           </div>
 
+          {/* Center Tabs Navigation */}
+          <div className="flex items-center gap-1.5 bg-white/5 border border-white/5 p-1 rounded-xl mx-4 overflow-x-auto">
+            <button
+              onClick={() => setActiveTab("discover")}
+              className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                activeTab === "discover"
+                  ? "bg-indigo-500 text-white shadow-md"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              Discover
+            </button>
+            <button
+              onClick={() => setActiveTab("analyze")}
+              className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                activeTab === "analyze"
+                  ? "bg-indigo-500 text-white shadow-md"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              Analyze
+            </button>
+            <button
+              onClick={() => setActiveTab("contribute")}
+              className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                activeTab === "contribute"
+                  ? "bg-indigo-500 text-white shadow-md"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              Contribute
+            </button>
+          </div>
+
           {/* Action buttons */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={() => setIsModalOpen(true)}
               className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 border border-white/5 text-slate-300 hover:text-white flex items-center gap-1.5 transition-all cursor-pointer"
             >
               <HelpCircle className="w-4 h-4" />
-              How It Works
+              <span className="hidden sm:inline">How It Works</span>
             </button>
 
             <a
@@ -112,124 +249,133 @@ export default function Home() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 flex flex-col gap-10">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-8">
+        
+        {/* Main Columns Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+          
+          {/* Active Tab Panel (Colspan 3) */}
+          <div className="lg:col-span-3 flex flex-col gap-6">
+            
+            {/* 1. Discover Tab */}
+            {activeTab === "discover" && (
+              <DiscoverTab
+                onAnalyzeRepo={handleAnalyzeRepo}
+                onContribute={handleContribute}
+                onSaveOpportunity={handleSaveOpportunity}
+                savedIds={savedIds}
+              />
+            )}
 
-        {/* Landing Hero Section (only when not showing results or loading) */}
-        {!isLoading && !resultData && (
-          <div className="text-center max-w-3xl mx-auto flex flex-col gap-4 py-6 md:py-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold w-fit mx-auto animate-float">
-              AI-Powered Open Source Contribution Assistant
-            </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-white leading-tight">
-              Empower Open Source Contributions with{" "}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-violet-400 to-fuchsia-400">
-                Agentic Intelligence
-              </span>
-            </h1>
-            <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-              OpenSourcePilot automates issue triage, similarity code search, code structure analysis, solution design, test suite synthesis, and PR drafts directly from a single URL.
-            </p>
+            {/* 2. Analyze Tab */}
+            {activeTab === "analyze" && (
+              <AnalyzeTab
+                onStartContribution={handleAnalyzeRepo}
+                initialUrl={analyzeUrl}
+              />
+            )}
+
+            {/* 3. Contribute Tab */}
+            {activeTab === "contribute" && (
+              <div className="flex flex-col gap-6">
+                {isLoading ? (
+                  <WorkflowLoading />
+                ) : isNotFound ? (
+                  <div className="max-w-2xl mx-auto rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6 md:p-8 flex flex-col items-center text-center gap-4 shadow-xl">
+                    <div className="p-3 bg-amber-500/10 rounded-full text-amber-400">
+                      <Search className="w-8 h-8" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white">Issue Not Found</h3>
+                      <p className="text-sm text-slate-400 mt-2 max-w-md leading-relaxed">{error}</p>
+                    </div>
+                    <button
+                      onClick={handleReset}
+                      className="mt-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/5 text-white font-medium rounded-xl text-sm flex items-center gap-2 transition-all active:scale-[0.98]"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                      Try Another Input
+                    </button>
+                  </div>
+                ) : error ? (
+                  <div className="max-w-2xl mx-auto rounded-2xl border border-rose-500/20 bg-rose-500/5 p-6 md:p-8 flex flex-col items-center text-center gap-4 shadow-xl">
+                    <div className="p-3 bg-rose-500/10 rounded-full text-rose-400">
+                      <AlertCircle className="w-8 h-8" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white">Execution Failed</h3>
+                      <p className="text-sm text-slate-400 mt-2 max-w-md leading-relaxed">{error}</p>
+                    </div>
+                    <button
+                      onClick={handleReset}
+                      className="mt-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/5 text-white font-medium rounded-xl text-sm flex items-center gap-2 transition-all active:scale-[0.98]"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                      Try Another Input
+                    </button>
+                  </div>
+                ) : resultData ? (
+                  <div className="flex flex-col gap-6">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-slate-400 font-semibold">
+                        Workflow results for {resultData.repository.name}
+                      </span>
+                      <div className="flex gap-2">
+                        {/* Simulation action: Mark as Merged */}
+                        <button
+                          onClick={() => {
+                            const newStats = { ...impactStats, prsMerged: impactStats.prsMerged + 1 };
+                            handleUpdateStats(newStats);
+                            alert("PR status logged! Contributor rank and impact score updated.");
+                          }}
+                          className="px-3 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-400 hover:text-emerald-300 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-[0.98] cursor-pointer"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          Mark PR Merged
+                        </button>
+
+                        <button
+                          onClick={handleReset}
+                          className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/5 text-slate-300 hover:text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-[0.98] cursor-pointer"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5" />
+                          Analyze Another Issue
+                        </button>
+                      </div>
+                    </div>
+                    <ResultDashboard data={resultData} />
+                  </div>
+                ) : (
+                  <div className="max-w-4xl mx-auto w-full">
+                    <WorkflowForm
+                      onSubmit={handleStartWorkflow}
+                      isLoading={false}
+                      initialRepoUrl={contributeUrl}
+                      initialIssueNumber={contributeIssue}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
           </div>
-        )}
 
-        {/* Dynamic State Layout */}
-        <div className="w-full">
-          {isLoading ? (
-            <WorkflowLoading />
-          ) : isNotFound ? (
-            <div className="max-w-2xl mx-auto rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6 md:p-8 flex flex-col items-center text-center gap-4 shadow-xl">
-              <div className="p-3 bg-amber-500/10 rounded-full text-amber-400">
-                <Search className="w-8 h-8" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-white">Issue Not Found</h3>
-                <p className="text-sm text-slate-400 mt-2 max-w-md leading-relaxed">{error}</p>
-              </div>
-              <button
-                onClick={handleReset}
-                className="mt-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/5 text-white font-medium rounded-xl text-sm flex items-center gap-2 transition-all active:scale-[0.98]"
-              >
-                <RefreshCw className="w-4 h-4" />
-                Try Another Input
-              </button>
-            </div>
-          ) : error ? (
-            <div className="max-w-2xl mx-auto rounded-2xl border border-rose-500/20 bg-rose-500/5 p-6 md:p-8 flex flex-col items-center text-center gap-4 shadow-xl">
-              <div className="p-3 bg-rose-500/10 rounded-full text-rose-400">
-                <AlertCircle className="w-8 h-8" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-white">Execution Failed</h3>
-                <p className="text-sm text-slate-400 mt-2 max-w-md leading-relaxed">{error}</p>
-              </div>
-              <button
-                onClick={handleReset}
-                className="mt-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/5 text-white font-medium rounded-xl text-sm flex items-center gap-2 transition-all active:scale-[0.98]"
-              >
-                <RefreshCw className="w-4 h-4" />
-                Try Another Input
-              </button>
-            </div>
-          ) : resultData ? (
-            <div className="flex flex-col gap-6">
-              {/* Back to Input trigger */}
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-slate-400">
-                  Showing results for {resultData.repository.name}
-                </span>
-                <button
-                  onClick={handleReset}
-                  className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/5 text-slate-300 hover:text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-[0.98]"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  Analyze Another Issue
-                </button>
-              </div>
-              <ResultDashboard data={resultData} />
-            </div>
-          ) : (
-            <div className="max-w-4xl mx-auto">
-              <WorkflowForm onSubmit={handleStartWorkflow} isLoading={false} />
-            </div>
-          )}
+          {/* Right Sidebar Widgets Panel (Colspan 1) */}
+          <div className="lg:col-span-1 flex flex-col gap-6 w-full">
+            <ImpactDashboard
+              stats={impactStats}
+              onUpdateStats={handleUpdateStats}
+            />
+
+            <PipelinePanel
+              savedOpportunities={savedOpportunities}
+              onRemove={handleRemoveOpportunity}
+              onAnalyzeRepo={handleAnalyzeRepo}
+              onContribute={handleContribute}
+            />
+          </div>
+
         </div>
-
-        {/* Features / Details cards (only show on landing page) */}
-        {!isLoading && !resultData && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
-
-            <div className="p-5 rounded-2xl bg-white/[0.01] border border-white/5 flex flex-col gap-2 hover:bg-white/[0.02] transition-colors">
-              <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm">
-                1
-              </div>
-              <h3 className="font-semibold text-white text-base">Issue Classification</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Detects whether an issue is a bug, feature request, question, or discussion. Analyzes suitability and computes difficulty metrics dynamically.
-              </p>
-            </div>
-
-            <div className="p-5 rounded-2xl bg-white/[0.01] border border-white/5 flex flex-col gap-2 hover:bg-white/[0.02] transition-colors">
-              <div className="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/20 text-violet-400 flex items-center justify-center font-bold text-sm">
-                2
-              </div>
-              <h3 className="font-semibold text-white text-base">Vector Search Retrieval</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Embeds target repository modules dynamically in local ChromaDB vectors using MiniLM models, retrieving closest similarity candidates high-speed.
-              </p>
-            </div>
-
-            <div className="p-5 rounded-2xl bg-white/[0.01] border border-white/5 flex flex-col gap-2 hover:bg-white/[0.02] transition-colors">
-              <div className="w-8 h-8 rounded-lg bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-400 flex items-center justify-center font-bold text-sm">
-                3
-              </div>
-              <h3 className="font-semibold text-white text-base">Resolution & Synthesis</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Synthesizes a resolution plan with estimated effort, generates comprehensive pytest suites, and builds formal Pull Request descriptions.
-              </p>
-            </div>
-
-          </div>
-        )}
 
       </main>
 

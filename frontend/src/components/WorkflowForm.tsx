@@ -6,12 +6,28 @@ import { Play, Sparkles, HelpCircle, AlertCircle } from "lucide-react";
 interface WorkflowFormProps {
   onSubmit: (repoUrl: string, issueNumber: number) => void;
   isLoading: boolean;
+  initialRepoUrl?: string;
+  initialIssueNumber?: string;
 }
 
-export default function WorkflowForm({ onSubmit, isLoading }: WorkflowFormProps) {
-  const [repoUrl, setRepoUrl] = useState("");
-  const [issueNumber, setIssueNumber] = useState("");
+export default function WorkflowForm({
+  onSubmit,
+  isLoading,
+  initialRepoUrl = "",
+  initialIssueNumber = ""
+}: WorkflowFormProps) {
+  const [repoUrl, setRepoUrl] = useState(initialRepoUrl);
+  const [issueNumber, setIssueNumber] = useState(initialIssueNumber);
   const [error, setError] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (initialRepoUrl) {
+      setRepoUrl(initialRepoUrl);
+    }
+    if (initialIssueNumber) {
+      setIssueNumber(initialIssueNumber);
+    }
+  }, [initialRepoUrl, initialIssueNumber]);
 
   const presets = [
     {
